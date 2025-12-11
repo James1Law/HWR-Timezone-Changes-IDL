@@ -3,6 +3,7 @@ import { Globe, ArrowRight, Clock, FileText } from 'lucide-react';
 
 const IDLExplainer = () => {
   const [highlightPeriod, setHighlightPeriod] = useState(null);
+  const [clockChangeType, setClockChangeType] = useState('timezone'); // 'timezone' or 'idl'
 
   return (
     <div className="min-h-screen bg-gray-100 p-6 font-sans">
@@ -789,70 +790,120 @@ const IDLExplainer = () => {
           </p>
           
           {/* Mock UI for adding clock change */}
-          <div className="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
+          <div className={`border-2 rounded-lg p-4 transition-colors ${clockChangeType === 'idl' ? 'border-blue-200 bg-blue-50' : 'border-gray-200 bg-gray-50'}`}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-medium text-gray-700">Add Clock Change Event</h3>
               <button className="text-gray-400 hover:text-gray-600">✕</button>
             </div>
-            
+
             <div className="space-y-4">
               {/* Event Type */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Event Type</label>
                 <div className="flex space-x-2">
-                  <button className="flex-1 py-2 px-3 border-2 border-orange-500 bg-orange-50 rounded-lg text-sm font-medium text-orange-700">
+                  <button
+                    onClick={() => setClockChangeType('timezone')}
+                    className={`flex-1 py-2 px-3 border-2 rounded-lg text-sm font-medium transition-all ${
+                      clockChangeType === 'timezone'
+                        ? 'border-orange-500 bg-orange-50 text-orange-700'
+                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                    }`}
+                  >
                     <Clock className="w-4 h-4 inline mr-2" />
                     Timezone Change
                   </button>
-                  <button className="flex-1 py-2 px-3 border-2 border-gray-200 bg-white rounded-lg text-sm font-medium text-gray-600 hover:border-gray-300">
+                  <button
+                    onClick={() => setClockChangeType('idl')}
+                    className={`flex-1 py-2 px-3 border-2 rounded-lg text-sm font-medium transition-all ${
+                      clockChangeType === 'idl'
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                    }`}
+                  >
                     <Globe className="w-4 h-4 inline mr-2" />
                     IDL Crossing
                   </button>
                 </div>
               </div>
-              
+
               {/* Time of Change */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Time of Change (Ship Time)</label>
-                <input 
-                  type="time" 
-                  defaultValue="02:00"
+                <input
+                  type="time"
+                  defaultValue={clockChangeType === 'idl' ? '12:00' : '02:00'}
+                  key={clockChangeType}
                   className="w-full border rounded-lg px-3 py-2 text-sm"
                 />
               </div>
-              
-              {/* Direction and Amount */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Direction</label>
-                  <select className="w-full border rounded-lg px-3 py-2 text-sm">
-                    <option>Forward (clocks ahead)</option>
-                    <option>Back (clocks behind)</option>
-                  </select>
+
+              {/* Timezone Change Fields */}
+              {clockChangeType === 'timezone' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Direction</label>
+                    <select className="w-full border rounded-lg px-3 py-2 text-sm">
+                      <option>Forward (clocks ahead)</option>
+                      <option>Back (clocks behind)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                    <select className="w-full border rounded-lg px-3 py-2 text-sm">
+                      <option>30 minutes</option>
+                      <option>1 hour</option>
+                      <option>1 hour 30 minutes</option>
+                      <option>2 hours</option>
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
-                  <select className="w-full border rounded-lg px-3 py-2 text-sm">
-                    <option>30 minutes</option>
-                    <option selected>1 hour</option>
-                    <option>1 hour 30 minutes</option>
-                    <option>2 hours</option>
-                  </select>
+              )}
+
+              {/* IDL Crossing Fields */}
+              {clockChangeType === 'idl' && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Direction of Travel</label>
+                    <select className="w-full border rounded-lg px-3 py-2 text-sm">
+                      <option>West → East (e.g., Japan to USA)</option>
+                      <option>East → West (e.g., USA to Japan)</option>
+                    </select>
+                  </div>
+                  <div className="bg-blue-100 border border-blue-200 rounded-lg p-3">
+                    <div className="flex items-start space-x-2">
+                      <Globe className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <div className="text-sm text-blue-800">
+                        <strong>West → East:</strong> Clocks go back 24 hours. The day will be <strong>repeated</strong> (same calendar date occurs twice).
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              
+              )}
+
               {/* Result Preview */}
-              <div className="bg-white border rounded-lg p-3">
+              <div className={`border rounded-lg p-3 ${clockChangeType === 'idl' ? 'bg-white' : 'bg-white'}`}>
                 <div className="text-xs text-gray-500 mb-1">Result</div>
-                <div className="text-sm font-medium text-gray-800">
-                  At 02:00, clocks move forward to 03:00. This day will be <strong>23 hours</strong> long.
-                </div>
+                {clockChangeType === 'timezone' ? (
+                  <div className="text-sm font-medium text-gray-800">
+                    At 02:00, clocks move forward to 03:00. This day will be <strong>23 hours</strong> long.
+                  </div>
+                ) : (
+                  <div className="text-sm font-medium text-gray-800">
+                    <div className="flex items-center space-x-2">
+                      <Globe className="w-4 h-4 text-blue-600" />
+                      <span>At 12:00 on <strong>Wed 26th</strong>, clocks go back to 12:00 on <strong>Tue 25th</strong>.</span>
+                    </div>
+                    <div className="mt-2 text-gray-600">
+                      Record will be labelled: <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-medium">Wed 26 → Tue 25</span>
+                    </div>
+                  </div>
+                )}
               </div>
-              
+
               {/* Actions */}
               <div className="flex justify-end space-x-2 pt-2">
                 <button className="px-4 py-2 border rounded-lg text-sm text-gray-600 hover:bg-gray-100">Cancel</button>
-                <button className="px-4 py-2 bg-teal-500 text-white rounded-lg text-sm hover:bg-teal-600">Add Event</button>
+                <button className={`px-4 py-2 text-white rounded-lg text-sm ${clockChangeType === 'idl' ? 'bg-blue-500 hover:bg-blue-600' : 'bg-teal-500 hover:bg-teal-600'}`}>Add Event</button>
               </div>
             </div>
           </div>
