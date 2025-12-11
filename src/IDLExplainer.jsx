@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Globe, ArrowRight, Clock, FileText } from 'lucide-react';
+import { Globe, ArrowRight, Clock, FileText, AlertTriangle } from 'lucide-react';
 
 const IDLExplainer = () => {
   const [highlightPeriod, setHighlightPeriod] = useState(null);
@@ -1326,6 +1326,276 @@ const IDLExplainer = () => {
             <li className="flex items-start space-x-2">
               <span className="text-gray-400">5.</span>
               <span>How is this currently handled in ISF Watchkeeper or your existing solution?</span>
+            </li>
+          </ul>
+        </div>
+
+        {/* ============================================ */}
+        {/* EDGE CASE: TIMESHEET ENTRY BEFORE CLOCK CHANGE */}
+        {/* ============================================ */}
+
+        <div className="border-t-4 border-amber-300 my-8"></div>
+
+        <div className="bg-amber-50 border-2 border-amber-300 rounded-lg p-6">
+          <h2 className="text-xl font-bold text-amber-800 mb-2 flex items-center">
+            <AlertTriangle className="w-6 h-6 mr-2" />
+            Edge Case: Timesheet Entry Before Clock Change Recorded
+          </h2>
+          <p className="text-amber-900">
+            With centralized clock change recording (Option A), what happens if a seafarer submits their timesheet
+            <strong> before</strong> the captain has recorded the clock change event?
+          </p>
+        </div>
+
+        {/* The Problem Explained */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            <AlertTriangle className="inline w-5 h-5 mr-2 text-amber-600" />
+            The Problem
+          </h2>
+
+          <div className="space-y-4">
+            <p className="text-gray-600">
+              Consider this scenario: A seafarer fills out their timesheet for the day, but the captain hasn't yet
+              recorded the clock change event that occurred during that day.
+            </p>
+
+            {/* Visual Timeline of the Problem */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="text-sm font-medium text-gray-700 mb-3">Timeline of Events:</div>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <div className="w-20 text-xs text-gray-500">10:00 UTC</div>
+                  <div className="flex-1 bg-orange-100 border border-orange-200 rounded px-3 py-2 text-sm">
+                    <Clock className="inline w-4 h-4 mr-2 text-orange-600" />
+                    <strong>Actual clock change occurs</strong> — clocks go forward 1 hour at 02:00 ship time
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-20 text-xs text-gray-500">14:00 UTC</div>
+                  <div className="flex-1 bg-teal-100 border border-teal-200 rounded px-3 py-2 text-sm">
+                    <FileText className="inline w-4 h-4 mr-2 text-teal-600" />
+                    <strong>Seafarer submits timesheet</strong> — enters "14:00-18:00" work period
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-20 text-xs text-gray-500">16:00 UTC</div>
+                  <div className="flex-1 bg-blue-100 border border-blue-200 rounded px-3 py-2 text-sm">
+                    <Globe className="inline w-4 h-4 mr-2 text-blue-600" />
+                    <strong>Captain records clock change</strong> — enters the event into the system
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* The Ambiguity */}
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <h4 className="font-medium text-red-800 mb-2">The Ambiguity</h4>
+              <p className="text-sm text-red-900 mb-2">
+                When the seafarer entered "14:00-18:00", did they mean:
+              </p>
+              <ul className="text-sm text-red-900 space-y-1 ml-4">
+                <li>• <strong>Old ship time</strong> (before they knew about the clock change)?</li>
+                <li>• <strong>New ship time</strong> (they informally knew clocks had changed)?</li>
+              </ul>
+              <p className="text-sm text-red-900 mt-2">
+                <strong>Clock-back scenarios are worse:</strong> If clocks went <em>back</em> 1 hour, there are
+                two instances of "14:00" — which one did they mean?
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Possible Solutions */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Possible Solutions</h2>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b text-left">
+                  <th className="pb-3 font-medium text-gray-700">Approach</th>
+                  <th className="pb-3 font-medium text-gray-700">How It Works</th>
+                  <th className="pb-3 font-medium text-gray-700">Trade-off</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b bg-emerald-50">
+                  <td className="py-3 pr-4">
+                    <div className="flex items-center space-x-2">
+                      <span className="bg-emerald-500 text-white px-2 py-0.5 rounded text-xs">Recommended</span>
+                    </div>
+                    <div className="font-medium text-emerald-800 mt-1">Auto-reject on conflict</div>
+                  </td>
+                  <td className="py-3 pr-4 text-gray-600">
+                    When a clock change is recorded that affects a pending/submitted timesheet,
+                    the system automatically rejects it with a message:
+                    <em>"A clock change event has been recorded that affects this timesheet. Please review and resubmit."</em>
+                  </td>
+                  <td className="py-3 text-gray-600">
+                    Requires seafarer to resubmit; leverages existing approval workflow
+                  </td>
+                </tr>
+                <tr className="border-b">
+                  <td className="py-3 pr-4 font-medium text-gray-700">Require clock change first</td>
+                  <td className="py-3 pr-4 text-gray-600">
+                    Block timesheet entry until the clock change event has been recorded for that day
+                  </td>
+                  <td className="py-3 text-gray-600">
+                    Impractical if captain is busy or unavailable
+                  </td>
+                </tr>
+                <tr className="border-b">
+                  <td className="py-3 pr-4 font-medium text-gray-700">UTC timestamp on creation</td>
+                  <td className="py-3 pr-4 text-gray-600">
+                    Record when the entry was made (in UTC), so we know what ship time was "official" at that moment
+                  </td>
+                  <td className="py-3 text-gray-600">
+                    Adds complexity; doesn't fully solve if seafarer was informally aware of change
+                  </td>
+                </tr>
+                <tr className="border-b">
+                  <td className="py-3 pr-4 font-medium text-gray-700">Flag for review</td>
+                  <td className="py-3 pr-4 text-gray-600">
+                    When clock change is inserted, flag all entries after that timestamp for manual confirmation
+                  </td>
+                  <td className="py-3 text-gray-600">
+                    Adds review burden; requires UI for flagged entries
+                  </td>
+                </tr>
+                <tr className="border-b">
+                  <td className="py-3 pr-4 font-medium text-gray-700">Soft lock / warning</td>
+                  <td className="py-3 pr-4 text-gray-600">
+                    Warn seafarers "clock change pending" but allow entry with explicit acknowledgment
+                  </td>
+                  <td className="py-3 text-gray-600">
+                    Requires real-time coordination; may be ignored
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Recommended Solution Deep Dive */}
+        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6">
+          <h2 className="text-lg font-semibold text-emerald-800 mb-4">
+            ✓ Recommended: Auto-Reject on Conflict
+          </h2>
+
+          <div className="space-y-4">
+            <p className="text-emerald-900">
+              This approach leverages the existing approval workflow and ensures the seafarer reviews their
+              timesheet with full knowledge of the clock change.
+            </p>
+
+            {/* Flow diagram */}
+            <div className="bg-white rounded-lg p-4">
+              <div className="text-sm font-medium text-gray-700 mb-3">How It Works:</div>
+              <div className="flex flex-col space-y-3">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center text-sm font-medium">1</div>
+                  <div className="flex-1 text-sm text-gray-600">Seafarer fills out and submits their timesheet as normal</div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center text-sm font-medium">2</div>
+                  <div className="flex-1 text-sm text-gray-600">Captain later records a clock change event that affects that timesheet's period</div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center text-sm font-medium">3</div>
+                  <div className="flex-1 text-sm text-gray-600">System detects the conflict and automatically rejects the timesheet</div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center text-sm font-medium">4</div>
+                  <div className="flex-1 text-sm text-gray-600">Seafarer receives notification with system comment explaining the rejection</div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center text-sm font-medium">5</div>
+                  <div className="flex-1 text-sm text-gray-600">Seafarer reviews timesheet (now showing the clock change) and resubmits</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Benefits */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-white rounded-lg p-4">
+                <h4 className="font-medium text-emerald-800 mb-2">Why This Works Well</h4>
+                <ul className="text-sm text-emerald-900 space-y-1">
+                  <li>• Doesn't block seafarers from working</li>
+                  <li>• Uses existing approval flow (no new UI)</li>
+                  <li>• Seafarer becomes source of truth for their intent</li>
+                  <li>• Clear audit trail of what happened</li>
+                  <li>• Simple to implement</li>
+                </ul>
+              </div>
+              <div className="bg-white rounded-lg p-4">
+                <h4 className="font-medium text-gray-700 mb-2">Example System Message</h4>
+                <div className="bg-amber-50 border border-amber-200 rounded p-3 text-sm text-amber-800">
+                  <strong>Timesheet Returned</strong>
+                  <p className="mt-1">
+                    A clock change event has been recorded that affects this timesheet period.
+                    Please review your entries and resubmit.
+                  </p>
+                  <p className="mt-2 text-xs text-amber-600">
+                    Clock change: +1 hour at 02:00 on Nov 25, 2025
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Key Design Questions */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">🔧 Key Design Questions</h2>
+
+          <div className="space-y-4">
+            <div className="border-l-4 border-amber-400 pl-4">
+              <h4 className="font-medium text-gray-700">What constitutes a "conflict"?</h4>
+              <ul className="text-sm text-gray-600 mt-2 space-y-1">
+                <li>• Any timesheet covering the day of the clock change?</li>
+                <li>• Only timesheets with entries that span the clock change time?</li>
+                <li>• Only pending/submitted timesheets, or also approved ones?</li>
+              </ul>
+            </div>
+
+            <div className="border-l-4 border-amber-400 pl-4">
+              <h4 className="font-medium text-gray-700">What about already-approved timesheets?</h4>
+              <p className="text-sm text-gray-600 mt-2">
+                If a timesheet was already approved before the clock change was recorded, should it be
+                automatically reopened? Or flagged for review? This has compliance implications.
+              </p>
+            </div>
+
+            <div className="border-l-4 border-amber-400 pl-4">
+              <h4 className="font-medium text-gray-700">Should the system prevent late clock change entries?</h4>
+              <p className="text-sm text-gray-600 mt-2">
+                Should there be a time limit on when a captain can record a clock change?
+                (e.g., must be within 24 hours of the actual event)
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Additional Research Questions */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <h3 className="font-semibold text-gray-800 mb-3">🔍 Additional Questions for User Research</h3>
+          <ul className="space-y-2 text-gray-600">
+            <li className="flex items-start space-x-2">
+              <span className="text-gray-400">6.</span>
+              <span>How often do seafarers submit their timesheets before clock changes are officially recorded?</span>
+            </li>
+            <li className="flex items-start space-x-2">
+              <span className="text-gray-400">7.</span>
+              <span>Would seafarers find it frustrating to have their timesheet auto-rejected and need to resubmit?</span>
+            </li>
+            <li className="flex items-start space-x-2">
+              <span className="text-gray-400">8.</span>
+              <span>What is the typical time lag between a clock change occurring and it being recorded in the system?</span>
+            </li>
+            <li className="flex items-start space-x-2">
+              <span className="text-gray-400">9.</span>
+              <span>Should seafarers be notified immediately when a clock change is recorded, or only when it affects their timesheet?</span>
             </li>
           </ul>
         </div>

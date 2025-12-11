@@ -46,3 +46,9 @@ The main component is `src/IDLExplainer.jsx` which demonstrates:
 - IDL crossings use blue globe icon; timezone changes use orange clock icon
 - Day lengths can be 23h, 23.5h, 24h, 24.5h, or 25h depending on clock changes
 - Repeated hours from clock-back events are labeled with (a)/(b) or (1st)/(2nd) suffixes
+
+## Workflow Rules
+
+1. **Plan before implementing** - Always discuss and get approval on proposed changes before writing code
+2. **Local development only** - Do not push to GitHub unless explicitly instructed
+3. **Follow best practices** - Adhere to Claude Code best practices and general coding standards
