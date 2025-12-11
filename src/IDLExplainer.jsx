@@ -196,7 +196,7 @@ const IDLExplainer = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs">Submitted</span>
+                  <span className="bg-teal-100 text-teal-700 px-2 py-1 rounded text-xs">Submitted</span>
                   <div className="text-xs text-gray-500 mt-1">Today's record</div>
                 </div>
               </div>
@@ -235,19 +235,19 @@ const IDLExplainer = () => {
         </div>
 
         {/* The Key Insight */}
-        <div className="bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg shadow-sm p-6 text-white">
-          <h2 className="text-lg font-semibold mb-3">💡 The Key Insight</h2>
-          <div className="space-y-3">
+        <div className="bg-teal-50 border border-teal-200 rounded-lg shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-teal-800 mb-3">💡 The Key Insight</h2>
+          <div className="space-y-3 text-teal-900">
             <p>
-              <strong>Record #1</strong> (original Tuesday) and <strong>Record #2</strong> (the IDL crossing day) 
+              <strong>Record #1</strong> (original Tuesday) and <strong>Record #2</strong> (the IDL crossing day)
               are <strong>two completely separate 24-hour periods</strong>.
             </p>
             <p>
-              They both have "Tuesday 25th" in their date labels, but they don't overlap or merge. 
+              They both have "Tuesday 25th" in their date labels, but they don't overlap or merge.
               Think of them as <strong>two different "ship days"</strong> that happen to share a calendar date.
             </p>
             <p>
-              The seafarer signs off each record independently. The compliance engine sees continuous UTC time 
+              The seafarer signs off each record independently. The compliance engine sees continuous UTC time
               flowing through both periods with no gaps or overlaps.
             </p>
           </div>
@@ -288,7 +288,7 @@ const IDLExplainer = () => {
                   onMouseEnter={() => setHighlightPeriod(2)}
                   onMouseLeave={() => setHighlightPeriod(null)}
                 >
-                  <td className="py-3"><span className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs">Submitted</span></td>
+                  <td className="py-3"><span className="bg-teal-100 text-teal-700 px-2 py-1 rounded text-xs">Submitted</span></td>
                   <td className="py-3">
                     <div className="flex items-center space-x-2">
                       <Globe className="w-4 h-4 text-blue-600" />
@@ -546,7 +546,7 @@ const IDLExplainer = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs">Submitted</span>
+                  <span className="bg-teal-100 text-teal-700 px-2 py-1 rounded text-xs">Submitted</span>
                   <div className="text-xs text-gray-500 mt-1">Today's record</div>
                 </div>
               </div>
@@ -585,19 +585,19 @@ const IDLExplainer = () => {
         </div>
 
         {/* Key Insight - Day Skipped */}
-        <div className="bg-gradient-to-r from-rose-500 to-orange-500 rounded-lg shadow-sm p-6 text-white">
-          <h2 className="text-lg font-semibold mb-3">💡 Key Insight: The Skipped Day</h2>
-          <div className="space-y-3">
+        <div className="bg-teal-50 border border-teal-200 rounded-lg shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-teal-800 mb-3">💡 Key Insight: The Skipped Day</h2>
+          <div className="space-y-3 text-teal-900">
             <p>
-              <strong>Tuesday 25th never fully existed</strong> on this vessel. It started at 00:00 but at 12:00 
+              <strong>Tuesday 25th never fully existed</strong> on this vessel. It started at 00:00 but at 12:00
               the clocks jumped forward to Wednesday 26th at 12:00.
             </p>
             <p>
-              The record is labelled <strong>"Tue 25 → Wed 26"</strong> to show this transition. 
+              The record is labelled <strong>"Tue 25 → Wed 26"</strong> to show this transition.
               It represents one continuous 24-hour period that spans two calendar dates.
             </p>
             <p>
-              Unlike the "day repeated" scenario, there's no previous "Tuesday 25th" record to worry about - 
+              Unlike the "day repeated" scenario, there's no previous "Tuesday 25th" record to worry about -
               Tuesday was always going to be an IDL crossing day.
             </p>
           </div>
@@ -638,7 +638,7 @@ const IDLExplainer = () => {
                   onMouseEnter={() => setHighlightPeriod(5)}
                   onMouseLeave={() => setHighlightPeriod(null)}
                 >
-                  <td className="py-3"><span className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs">Submitted</span></td>
+                  <td className="py-3"><span className="bg-teal-100 text-teal-700 px-2 py-1 rounded text-xs">Submitted</span></td>
                   <td className="py-3">
                     <div className="flex items-center space-x-2">
                       <Globe className="w-4 h-4 text-rose-600" />
@@ -903,7 +903,7 @@ const IDLExplainer = () => {
               {/* Actions */}
               <div className="flex justify-end space-x-2 pt-2">
                 <button className="px-4 py-2 border rounded-lg text-sm text-gray-600 hover:bg-gray-100">Cancel</button>
-                <button className={`px-4 py-2 text-white rounded-lg text-sm ${clockChangeType === 'idl' ? 'bg-blue-500 hover:bg-blue-600' : 'bg-teal-500 hover:bg-teal-600'}`}>Add Event</button>
+                <button className="px-4 py-2 bg-teal-500 text-white rounded-lg text-sm hover:bg-teal-600">Add Event</button>
               </div>
             </div>
           </div>
@@ -1077,11 +1077,11 @@ const IDLExplainer = () => {
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div>
-                      <div className="text-xs text-gray-400">Work</div>
+                      <div className="text-xs text-teal-600">Work</div>
                       <div className="text-lg font-semibold">7.5<span className="text-xs text-gray-400">h</span></div>
                     </div>
                     <div>
-                      <div className="text-xs text-gray-400">Drill</div>
+                      <div className="text-xs text-violet-600">Drill</div>
                       <div className="text-lg font-semibold">0.5<span className="text-xs text-gray-400">h</span></div>
                     </div>
                     <div>
@@ -1091,7 +1091,7 @@ const IDLExplainer = () => {
                   </div>
                   <div className="text-xs text-gray-500 mt-2 text-center">7.5 + 0.5 + 15 = 23h ✓</div>
                 </div>
-                
+
                 <div className="border rounded-lg p-3">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs text-gray-500">Day summary</span>
@@ -1102,11 +1102,11 @@ const IDLExplainer = () => {
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div>
-                      <div className="text-xs text-gray-400">Work</div>
+                      <div className="text-xs text-teal-600">Work</div>
                       <div className="text-lg font-semibold">8.0<span className="text-xs text-gray-400">h</span></div>
                     </div>
                     <div>
-                      <div className="text-xs text-gray-400">Drill</div>
+                      <div className="text-xs text-violet-600">Drill</div>
                       <div className="text-lg font-semibold">0.5<span className="text-xs text-gray-400">h</span></div>
                     </div>
                     <div>
@@ -1116,7 +1116,7 @@ const IDLExplainer = () => {
                   </div>
                   <div className="text-xs text-gray-500 mt-2 text-center">Normal day</div>
                 </div>
-                
+
                 <div className="border rounded-lg p-3">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs text-gray-500">Day summary</span>
@@ -1128,11 +1128,11 @@ const IDLExplainer = () => {
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div>
-                      <div className="text-xs text-gray-400">Work</div>
+                      <div className="text-xs text-teal-600">Work</div>
                       <div className="text-lg font-semibold">8.0<span className="text-xs text-gray-400">h</span></div>
                     </div>
                     <div>
-                      <div className="text-xs text-gray-400">Drill</div>
+                      <div className="text-xs text-violet-600">Drill</div>
                       <div className="text-lg font-semibold">0.0<span className="text-xs text-gray-400">h</span></div>
                     </div>
                     <div>
@@ -1147,19 +1147,31 @@ const IDLExplainer = () => {
             
             {/* Timeline markers */}
             <div>
-              <h3 className="font-medium text-gray-700 mb-3">Timeline Markers</h3>
-              <div className="flex space-x-6">
+              <h3 className="font-medium text-gray-700 mb-3">Timeline Block Colors</h3>
+              <div className="flex flex-wrap gap-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-6 h-6 bg-teal-500 rounded"></div>
+                  <span className="text-sm text-gray-600">Work</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-6 h-6 bg-violet-500 rounded"></div>
+                  <span className="text-sm text-gray-600">Drill</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-6 h-6 bg-gray-200 rounded"></div>
+                  <span className="text-sm text-gray-600">Rest</span>
+                </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
                     <Clock className="w-3 h-3 text-white" />
                   </div>
-                  <span className="text-sm text-gray-600">Timezone change (±hours/mins)</span>
+                  <span className="text-sm text-gray-600">Timezone change</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                     <Globe className="w-3 h-3 text-white" />
                   </div>
-                  <span className="text-sm text-gray-600">IDL crossing (±24 hours)</span>
+                  <span className="text-sm text-gray-600">IDL crossing</span>
                 </div>
               </div>
             </div>
@@ -1319,9 +1331,9 @@ const IDLExplainer = () => {
         </div>
 
         {/* Final Summary */}
-        <div className="bg-gradient-to-r from-teal-500 to-blue-500 rounded-lg shadow-sm p-6 text-white">
-          <h2 className="text-lg font-semibold mb-3">✅ Summary: The Unified Approach</h2>
-          <div className="space-y-3">
+        <div className="bg-teal-50 border border-teal-200 rounded-lg shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-teal-800 mb-3">✅ Summary: The Unified Approach</h2>
+          <div className="space-y-3 text-teal-900">
             <p>
               <strong>1. Clock Change Events</strong> are recorded at vessel level, capturing the time, direction, and amount of any ship time adjustment.
             </p>
