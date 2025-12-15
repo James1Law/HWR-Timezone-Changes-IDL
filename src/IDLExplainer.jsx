@@ -826,15 +826,42 @@ const IDLExplainer = () => {
                 </div>
               </div>
 
-              {/* Time of Change */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Time of Change (Ship Time)</label>
-                <input
-                  type="time"
-                  defaultValue={clockChangeType === 'idl' ? '12:00' : '02:00'}
-                  key={clockChangeType}
-                  className="w-full border rounded-lg px-3 py-2 text-sm"
-                />
+              {/* Date and Time of Change */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Date of Change</label>
+                  <input
+                    type="date"
+                    defaultValue="2025-11-26"
+                    className="w-full border rounded-lg px-3 py-2 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Time of Change (Ship Time)</label>
+                  <input
+                    type="time"
+                    defaultValue={clockChangeType === 'idl' ? '12:00' : '02:00'}
+                    key={clockChangeType}
+                    className="w-full border rounded-lg px-3 py-2 text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Current Offset Display */}
+              <div className="bg-gray-100 border border-gray-200 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-xs text-gray-500 mb-1">Current Ship Time Offset</div>
+                    <div className="text-lg font-semibold text-gray-800">
+                      {clockChangeType === 'timezone' ? 'UTC+9:00' : 'UTC+12:00'}
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-500 text-right">
+                    {clockChangeType === 'timezone'
+                      ? 'Ship time is 9 hours ahead of UTC'
+                      : 'Ship time is 12 hours ahead of UTC'}
+                  </div>
+                </div>
               </div>
 
               {/* Timezone Change Fields */}
@@ -880,17 +907,40 @@ const IDLExplainer = () => {
                 </div>
               )}
 
-              {/* Result Preview */}
-              <div className={`border rounded-lg p-3 ${clockChangeType === 'idl' ? 'bg-white' : 'bg-white'}`}>
-                <div className="text-xs text-gray-500 mb-1">Result</div>
+              {/* Offset Change - Before and After */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className={`border-2 rounded-lg p-3 ${clockChangeType === 'timezone' ? 'border-orange-200 bg-orange-50' : 'border-blue-200 bg-blue-50'}`}>
+                  <div className="text-xs text-gray-500 mb-1">Ship Time Offset Before</div>
+                  <div className="text-lg font-semibold text-gray-800">
+                    {clockChangeType === 'timezone' ? 'UTC+9:00' : 'UTC+12:00'}
+                  </div>
+                </div>
+                <div className={`border-2 rounded-lg p-3 ${clockChangeType === 'timezone' ? 'border-orange-500 bg-orange-100' : 'border-blue-500 bg-blue-100'}`}>
+                  <div className="text-xs text-gray-500 mb-1">Ship Time Offset After</div>
+                  <div className="text-lg font-semibold text-gray-800">
+                    {clockChangeType === 'timezone' ? 'UTC+10:00' : 'UTC-12:00'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Arrow indicator between boxes */}
+              <div className="flex justify-center -mt-2 -mb-2">
+                <div className={`px-3 py-1 rounded-full text-xs font-medium ${clockChangeType === 'timezone' ? 'bg-orange-500 text-white' : 'bg-blue-500 text-white'}`}>
+                  {clockChangeType === 'timezone' ? '+1 hour' : '-24 hours'}
+                </div>
+              </div>
+
+              {/* Result explanation */}
+              <div className="border rounded-lg p-3 bg-gray-50">
+                <div className="text-xs text-gray-500 mb-1">What happens</div>
                 {clockChangeType === 'timezone' ? (
-                  <div className="text-sm font-medium text-gray-800">
-                    At 02:00, clocks move forward to 03:00. This day will be <strong>23 hours</strong> long.
+                  <div className="text-sm text-gray-800">
+                    At 02:00 on <strong>Wed 26 Nov</strong>, clocks move forward to 03:00. This day will be <strong>23 hours</strong> long.
                   </div>
                 ) : (
-                  <div className="text-sm font-medium text-gray-800">
+                  <div className="text-sm text-gray-800">
                     <div className="flex items-center space-x-2">
-                      <Globe className="w-4 h-4 text-blue-600" />
+                      <Globe className="w-4 h-4 text-blue-600 flex-shrink-0" />
                       <span>At 12:00 on <strong>Wed 26th</strong>, clocks go back to 12:00 on <strong>Tue 25th</strong>.</span>
                     </div>
                     <div className="mt-2 text-gray-600">
@@ -910,9 +960,162 @@ const IDLExplainer = () => {
         </div>
 
         {/* ============================================ */}
+        {/* DECISION: INITIAL OFFSET SETUP */}
+        {/* ============================================ */}
+
+        <div className="bg-teal-50 border-2 border-teal-300 rounded-lg p-6">
+          <h2 className="text-xl font-bold text-teal-800 mb-2">💡 Initial Offset Setup: Suggested Solution</h2>
+          <p className="text-teal-900">
+            When a vessel first starts using the system, it needs to establish its initial ship time offset from UTC.
+            The system needs to know this starting point before any clock changes can be recorded.
+          </p>
+        </div>
+
+        {/* The Problem */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            <AlertTriangle className="inline w-5 h-5 mr-2 text-amber-600" />
+            The Problem
+          </h2>
+          <div className="space-y-3 text-gray-600">
+            <p>
+              Clock change events record <strong>changes</strong> to ship time (e.g., "+1 hour" or "crossed IDL westbound").
+              But to calculate the current offset and display it correctly, we need to know where the ship <strong>started</strong>.
+            </p>
+            <p>
+              When the system goes live on Day 1:
+            </p>
+            <ul className="list-disc ml-6 space-y-1">
+              <li>The ship is already operating at some offset from UTC (e.g., UTC+3 if near the Middle East)</li>
+              <li>There's no history of clock change events in the system yet</li>
+              <li>Someone needs to tell the system "we are currently at UTC+X"</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Suggested Solution: Admin Sets Initial Offset */}
+        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-teal-500">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Vessel Admin Sets Initial Offset</h2>
+
+          <p className="text-gray-600 mb-4">
+            During vessel onboarding or in vessel settings, an admin (Master/OOW) sets the current ship time offset.
+            This becomes the baseline for all future clock change calculations.
+          </p>
+
+          <div className="space-y-3 text-gray-600 mb-4">
+            <ul className="list-disc ml-6 space-y-1">
+              <li>Add "Ship Time Offset" to vessel onboarding or settings</li>
+              <li>Require it to be set before any timesheets can be submitted</li>
+              <li>Show current offset prominently in the clock change form (as now shown above)</li>
+              <li>Allow correction via a "Set Current Offset" action (with audit trail)</li>
+            </ul>
+          </div>
+
+          {/* Mock UI */}
+          <div className="bg-gray-50 border rounded-lg p-4">
+            <div className="text-sm font-medium text-gray-700 mb-3">Example: Vessel Settings</div>
+            <div className="bg-white border rounded-lg p-4 max-w-md">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Current Ship Time Offset</label>
+              <select className="w-full border rounded-lg px-3 py-2 text-sm mb-2" defaultValue="UTC+3:00">
+                <option value="UTC+14:00">UTC+14:00</option>
+                <option value="UTC+13:30">UTC+13:30</option>
+                <option value="UTC+13:00">UTC+13:00</option>
+                <option value="UTC+12:30">UTC+12:30</option>
+                <option value="UTC+12:00">UTC+12:00</option>
+                <option value="UTC+11:30">UTC+11:30</option>
+                <option value="UTC+11:00">UTC+11:00</option>
+                <option value="UTC+10:30">UTC+10:30</option>
+                <option value="UTC+10:00">UTC+10:00</option>
+                <option value="UTC+9:30">UTC+9:30</option>
+                <option value="UTC+9:00">UTC+9:00</option>
+                <option value="UTC+8:30">UTC+8:30</option>
+                <option value="UTC+8:00">UTC+8:00</option>
+                <option value="UTC+7:30">UTC+7:30</option>
+                <option value="UTC+7:00">UTC+7:00</option>
+                <option value="UTC+6:30">UTC+6:30</option>
+                <option value="UTC+6:00">UTC+6:00</option>
+                <option value="UTC+5:30">UTC+5:30</option>
+                <option value="UTC+5:00">UTC+5:00</option>
+                <option value="UTC+4:30">UTC+4:30</option>
+                <option value="UTC+4:00">UTC+4:00</option>
+                <option value="UTC+3:30">UTC+3:30</option>
+                <option value="UTC+3:00">UTC+3:00</option>
+                <option value="UTC+2:30">UTC+2:30</option>
+                <option value="UTC+2:00">UTC+2:00</option>
+                <option value="UTC+1:30">UTC+1:30</option>
+                <option value="UTC+1:00">UTC+1:00</option>
+                <option value="UTC+0:30">UTC+0:30</option>
+                <option value="UTC+0:00">UTC+0:00 (UTC)</option>
+                <option value="UTC-0:30">UTC-0:30</option>
+                <option value="UTC-1:00">UTC-1:00</option>
+                <option value="UTC-1:30">UTC-1:30</option>
+                <option value="UTC-2:00">UTC-2:00</option>
+                <option value="UTC-2:30">UTC-2:30</option>
+                <option value="UTC-3:00">UTC-3:00</option>
+                <option value="UTC-3:30">UTC-3:30</option>
+                <option value="UTC-4:00">UTC-4:00</option>
+                <option value="UTC-4:30">UTC-4:30</option>
+                <option value="UTC-5:00">UTC-5:00</option>
+                <option value="UTC-5:30">UTC-5:30</option>
+                <option value="UTC-6:00">UTC-6:00</option>
+                <option value="UTC-6:30">UTC-6:30</option>
+                <option value="UTC-7:00">UTC-7:00</option>
+                <option value="UTC-7:30">UTC-7:30</option>
+                <option value="UTC-8:00">UTC-8:00</option>
+                <option value="UTC-8:30">UTC-8:30</option>
+                <option value="UTC-9:00">UTC-9:00</option>
+                <option value="UTC-9:30">UTC-9:30</option>
+                <option value="UTC-10:00">UTC-10:00</option>
+                <option value="UTC-10:30">UTC-10:30</option>
+                <option value="UTC-11:00">UTC-11:00</option>
+                <option value="UTC-11:30">UTC-11:30</option>
+                <option value="UTC-12:00">UTC-12:00</option>
+              </select>
+              <p className="text-xs text-gray-500">
+                Set this to match the ship's current local time offset from UTC.
+                This will be the starting point for tracking clock changes.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Considerations */}
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+          <h4 className="font-medium text-amber-800 mb-2">Considerations</h4>
+          <ul className="text-sm text-amber-900 space-y-1">
+            <li>• Requires admin to know/verify current offset</li>
+            <li>• Risk of incorrect initial value — need a way to correct with audit trail</li>
+            <li>• Ship time is a vessel decision, not strictly geographical (a ship at longitude 45°E might operate on UTC+2, UTC+3, or UTC+4)</li>
+          </ul>
+        </div>
+
+        {/* Questions for Research */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <h3 className="font-semibold text-gray-800 mb-3">🔍 Questions for User Research</h3>
+          <ul className="space-y-2 text-gray-600">
+            <li className="flex items-start space-x-2">
+              <span className="text-gray-400">1.</span>
+              <span>How do vessels currently track their ship time offset? Is it documented somewhere?</span>
+            </li>
+            <li className="flex items-start space-x-2">
+              <span className="text-gray-400">2.</span>
+              <span>Who on the vessel would know the current offset and be responsible for setting it?</span>
+            </li>
+            <li className="flex items-start space-x-2">
+              <span className="text-gray-400">3.</span>
+              <span>How often do vessels operate at an offset that differs from their geographical position?</span>
+            </li>
+            <li className="flex items-start space-x-2">
+              <span className="text-gray-400">4.</span>
+              <span>If the initial offset is set incorrectly, what's the impact and how should correction work?</span>
+            </li>
+          </ul>
+        </div>
+
+        {/* ============================================ */}
         {/* HOURLY CLOCK CHANGES EXPLAINED */}
         {/* ============================================ */}
-        
+
         <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
           <h2 className="text-lg font-semibold text-orange-800 mb-3">
             <Clock className="inline w-5 h-5 mr-2" />
