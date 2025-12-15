@@ -213,7 +213,7 @@ const Prototype = () => {
     const percent = Math.max(0, Math.min(1, (pixelX - timelineRect.left) / timelineRect.width));
     const totalMinutes = percent * dayLength * 60;
     const hours = Math.floor(totalMinutes / 60);
-    const minutes = Math.round(totalMinutes % 60 / 15) * 15; // Snap to 15-min intervals
+    const minutes = Math.round(totalMinutes % 60 / 30) * 30; // Snap to 30-min intervals
     const clampedHours = Math.min(hours, Math.floor(dayLength));
     const clampedMinutes = clampedHours === Math.floor(dayLength) ? 0 : minutes;
     return `${clampedHours.toString().padStart(2, '0')}:${clampedMinutes.toString().padStart(2, '0')}`;
@@ -239,14 +239,14 @@ const Prototype = () => {
 
     if (type === 'resize-start') {
       // Dragging the left edge - change start time, keep end fixed
-      const newStartMinutes = Math.min(currentMinutes, origEndMinutes - 15);
+      const newStartMinutes = Math.min(currentMinutes, origEndMinutes - 30);
       const h = Math.floor(newStartMinutes / 60);
       const m = newStartMinutes % 60;
       newStart = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
       newEnd = originalEntry.end;
     } else if (type === 'resize-end') {
       // Dragging the right edge - change end time, keep start fixed
-      const newEndMinutes = Math.max(currentMinutes, origStartMinutes + 15);
+      const newEndMinutes = Math.max(currentMinutes, origStartMinutes + 30);
       const h = Math.floor(newEndMinutes / 60);
       const m = newEndMinutes % 60;
       newStart = originalEntry.start;
@@ -255,7 +255,7 @@ const Prototype = () => {
       // Moving the whole block - keep duration, change both start and end
       let newStartMinutes = currentMinutes - duration / 2;
       newStartMinutes = Math.max(0, Math.min(newStartMinutes, dayLength * 60 - duration));
-      newStartMinutes = Math.round(newStartMinutes / 15) * 15; // Snap to 15-min
+      newStartMinutes = Math.round(newStartMinutes / 30) * 30; // Snap to 30-min
       const newEndMinutes = newStartMinutes + duration;
 
       const startH = Math.floor(newStartMinutes / 60);
