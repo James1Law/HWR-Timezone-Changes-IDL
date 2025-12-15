@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Globe, ArrowRight, Clock, FileText, AlertTriangle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Globe, ArrowRight, Clock, FileText, AlertTriangle, PlayCircle } from 'lucide-react';
 
 const IDLExplainer = () => {
   const [highlightPeriod, setHighlightPeriod] = useState(null);
@@ -1823,6 +1824,22 @@ const IDLExplainer = () => {
               <strong>5. Compliance engine:</strong> Works on continuous UTC time underneath — clock changes are purely a presentation/recording concern.
             </p>
           </div>
+        </div>
+
+        {/* Try Prototype Button */}
+        <div className="bg-gradient-to-r from-violet-500 to-purple-600 rounded-lg shadow-lg p-8 text-center">
+          <h2 className="text-2xl font-bold text-white mb-3">Ready to see it in action?</h2>
+          <p className="text-violet-100 mb-6 max-w-xl mx-auto">
+            Try our interactive prototype to experience how clock changes and timesheet entry work together.
+            Set your timezone, schedule a clock change, and enter hours across 3 days.
+          </p>
+          <Link
+            to="/prototype"
+            className="inline-flex items-center space-x-2 bg-white text-violet-600 px-6 py-3 rounded-lg font-semibold hover:bg-violet-50 transition-colors shadow-md"
+          >
+            <PlayCircle className="w-5 h-5" />
+            <span>Try Interactive Prototype</span>
+          </Link>
         </div>
 
       </div>
