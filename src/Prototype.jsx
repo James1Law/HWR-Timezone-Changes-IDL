@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Globe, Clock, ArrowLeft, ArrowRight, Plus, Trash2, Settings, AlertTriangle } from 'lucide-react';
 
@@ -204,14 +204,148 @@ const Prototype = () => {
     else setDay3Entries(updateFn(day3Entries));
   };
 
+  // Drag state for timeline blocks
+  const [dragState, setDragState] = useState(null);
+  // dragState: { dayNum, entryIndex, type: 'move' | 'resize-start' | 'resize-end', startX, originalEntry, timelineRect }
+
+  // Convert pixel position to time string
+  const pixelToTime = useCallback((pixelX, timelineRect, dayLength) => {
+    const percent = Math.max(0, Math.min(1, (pixelX - timelineRect.left) / timelineRect.width));
+    const totalMinutes = percent * dayLength * 60;
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = Math.round(totalMinutes % 60 / 15) * 15; // Snap to 15-min intervals
+    const clampedHours = Math.min(hours, Math.floor(dayLength));
+    const clampedMinutes = clampedHours === Math.floor(dayLength) ? 0 : minutes;
+    return `${clampedHours.toString().padStart(2, '0')}:${clampedMinutes.toString().padStart(2, '0')}`;
+  }, []);
+
+  // Handle mouse move during drag
+  const handleMouseMove = useCallback((e) => {
+    if (!dragState) return;
+
+    const { dayNum, entryIndex, type, originalEntry, timelineRect } = dragState;
+    const dayLength = getDayLength(dayNum);
+    const currentTime = pixelToTime(e.clientX, timelineRect, dayLength);
+    const [currentH, currentM] = currentTime.split(':').map(Number);
+    const currentMinutes = currentH * 60 + currentM;
+
+    const [origStartH, origStartM] = originalEntry.start.split(':').map(Number);
+    const [origEndH, origEndM] = originalEntry.end.split(':').map(Number);
+    const origStartMinutes = origStartH * 60 + origStartM;
+    const origEndMinutes = origEndH * 60 + origEndM;
+    const duration = origEndMinutes - origStartMinutes;
+
+    let newStart, newEnd;
+
+    if (type === 'resize-start') {
+      // Dragging the left edge - change start time, keep end fixed
+      const newStartMinutes = Math.min(currentMinutes, origEndMinutes - 15);
+      const h = Math.floor(newStartMinutes / 60);
+      const m = newStartMinutes % 60;
+      newStart = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+      newEnd = originalEntry.end;
+    } else if (type === 'resize-end') {
+      // Dragging the right edge - change end time, keep start fixed
+      const newEndMinutes = Math.max(currentMinutes, origStartMinutes + 15);
+      const h = Math.floor(newEndMinutes / 60);
+      const m = newEndMinutes % 60;
+      newStart = originalEntry.start;
+      newEnd = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+    } else if (type === 'move') {
+      // Moving the whole block - keep duration, change both start and end
+      let newStartMinutes = currentMinutes - duration / 2;
+      newStartMinutes = Math.max(0, Math.min(newStartMinutes, dayLength * 60 - duration));
+      newStartMinutes = Math.round(newStartMinutes / 15) * 15; // Snap to 15-min
+      const newEndMinutes = newStartMinutes + duration;
+
+      const startH = Math.floor(newStartMinutes / 60);
+      const startM = newStartMinutes % 60;
+      const endH = Math.floor(newEndMinutes / 60);
+      const endM = newEndMinutes % 60;
+      newStart = `${startH.toString().padStart(2, '0')}:${startM.toString().padStart(2, '0')}`;
+      newEnd = `${endH.toString().padStart(2, '0')}:${endM.toString().padStart(2, '0')}`;
+    }
+
+    if (newStart && newEnd) {
+      const updateFn = (entries) => entries.map((e, i) =>
+        i === entryIndex ? { start: newStart, end: newEnd } : e
+      );
+      if (dayNum === 1) setDay1Entries(updateFn(day1Entries));
+      else if (dayNum === 2) setDay2Entries(updateFn(day2Entries));
+      else setDay3Entries(updateFn(day3Entries));
+    }
+  }, [dragState, day1Entries, day2Entries, day3Entries, pixelToTime, getDayLength]);
+
+  // Handle mouse up - end drag
+  const handleMouseUp = useCallback(() => {
+    setDragState(null);
+  }, []);
+
+  // Add/remove global mouse event listeners
+  useEffect(() => {
+    if (dragState) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [dragState, handleMouseMove, handleMouseUp]);
+
+  // Start drag operation
+  const startDrag = (e, dayNum, entryIndex, type, entry, timelineRect) => {
+    e.preventDefault();
+    setDragState({
+      dayNum,
+      entryIndex,
+      type,
+      startX: e.clientX,
+      originalEntry: { ...entry },
+      timelineRect
+    });
+  };
+
   // Render timeline bar for a day
   const renderTimeline = (entries, dayNum) => {
     const dayLength = getDayLength(dayNum);
     const clockChangeHour = parseInt(clockChangeTime.split(':')[0]);
     const showClockChange = clockChangeEnabled && dayNum === 2;
+    const timelineRef = useRef(null);
+
+    const handleBlockMouseDown = (e, idx, entry) => {
+      if (!timelineRef.current) return;
+      const rect = timelineRef.current.getBoundingClientRect();
+      const blockRect = e.currentTarget.getBoundingClientRect();
+      const relativeX = e.clientX - blockRect.left;
+      const blockWidth = blockRect.width;
+
+      // Determine if we're on an edge (within 8px) or center
+      let type;
+      if (relativeX < 8) {
+        type = 'resize-start';
+      } else if (relativeX > blockWidth - 8) {
+        type = 'resize-end';
+      } else {
+        type = 'move';
+      }
+
+      startDrag(e, dayNum, idx, type, entry, rect);
+    };
+
+    const getCursor = (e) => {
+      const blockRect = e.currentTarget.getBoundingClientRect();
+      const relativeX = e.clientX - blockRect.left;
+      const blockWidth = blockRect.width;
+
+      if (relativeX < 8 || relativeX > blockWidth - 8) {
+        return 'ew-resize';
+      }
+      return 'grab';
+    };
 
     return (
-      <div className="relative h-10 bg-gray-100 rounded overflow-hidden">
+      <div ref={timelineRef} className="relative h-12 bg-gray-100 rounded select-none">
         {/* Hour markers */}
         <div className="absolute inset-0 flex">
           {[...Array(Math.ceil(dayLength) + 1)].map((_, i) => (
@@ -225,13 +359,37 @@ const Prototype = () => {
           const [endH, endM] = entry.end.split(':').map(Number);
           const startPercent = ((startH + startM / 60) / dayLength) * 100;
           const widthPercent = (((endH - startH) + (endM - startM) / 60) / dayLength) * 100;
+          const isDragging = dragState && dragState.dayNum === dayNum && dragState.entryIndex === idx;
 
           return (
             <div
               key={idx}
-              className="absolute top-1 bottom-1 bg-teal-500 rounded"
-              style={{ left: `${startPercent}%`, width: `${widthPercent}%` }}
-            />
+              className={`absolute top-1 bottom-1 bg-teal-500 rounded group transition-shadow ${
+                isDragging ? 'shadow-lg ring-2 ring-teal-300' : 'hover:shadow-md'
+              }`}
+              style={{
+                left: `${startPercent}%`,
+                width: `${widthPercent}%`,
+                cursor: isDragging ? (dragState.type === 'move' ? 'grabbing' : 'ew-resize') : 'grab'
+              }}
+              onMouseDown={(e) => handleBlockMouseDown(e, idx, entry)}
+              onMouseMove={(e) => {
+                if (!isDragging) {
+                  e.currentTarget.style.cursor = getCursor(e);
+                }
+              }}
+            >
+              {/* Left resize handle */}
+              <div className="absolute left-0 top-0 bottom-0 w-2 cursor-ew-resize hover:bg-teal-600 rounded-l" />
+              {/* Right resize handle */}
+              <div className="absolute right-0 top-0 bottom-0 w-2 cursor-ew-resize hover:bg-teal-600 rounded-r" />
+              {/* Time tooltip on hover/drag */}
+              <div className={`absolute -top-6 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-0.5 rounded whitespace-nowrap transition-opacity ${
+                isDragging ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+              }`}>
+                {entry.start} - {entry.end}
+              </div>
+            </div>
           );
         })}
 
@@ -289,7 +447,7 @@ const Prototype = () => {
         </div>
 
         {/* Timeline */}
-        <div className="mb-4">
+        <div className="mb-4 pt-6">
           {renderTimeline(entries, dayNum)}
           <div className="relative text-xs text-gray-400 mt-1">
             <span>00:00</span>
