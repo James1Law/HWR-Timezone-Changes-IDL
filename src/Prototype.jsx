@@ -600,6 +600,37 @@ const Prototype = () => {
                 </select>
               </div>
 
+              {/* Scheduled Clock Changes */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Scheduled Clock Changes</label>
+                <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                  {/* Past changes */}
+                  <div className="flex items-center text-xs text-gray-500">
+                    <div className="w-2 h-2 rounded-full bg-gray-300 mr-2" />
+                    <span className="flex-1">Wed 19 Nov</span>
+                    <span className="text-gray-400">+1h at 02:00</span>
+                  </div>
+                  <div className="flex items-center text-xs text-gray-500">
+                    <div className="w-2 h-2 rounded-full bg-gray-300 mr-2" />
+                    <span className="flex-1">Sat 22 Nov</span>
+                    <span className="text-gray-400">+1h at 02:00</span>
+                  </div>
+                  {/* Current - being edited */}
+                  <div className="flex items-center text-xs font-medium text-teal-700 bg-teal-50 -mx-3 px-3 py-1.5 border-l-2 border-teal-500">
+                    <div className="w-2 h-2 rounded-full bg-teal-500 mr-2" />
+                    <span className="flex-1">Wed 26 Nov</span>
+                    <span className="text-teal-600">Editing...</span>
+                  </div>
+                  {/* Future change */}
+                  <div className="flex items-center text-xs text-gray-600">
+                    <div className="w-2 h-2 rounded-full bg-orange-400 mr-2" />
+                    <span className="flex-1">Sun 30 Nov</span>
+                    <span className="text-gray-400">+1h at 02:00</span>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-400 mt-1">Showing planned changes for this voyage</p>
+              </div>
+
               {/* Clock Change Toggle */}
               <div className="mb-4">
                 <label className="flex items-center space-x-2">
