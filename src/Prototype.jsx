@@ -644,6 +644,18 @@ const Prototype = () => {
                     </div>
                   </div>
 
+                  {/* Date of Change */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Date of Change</label>
+                    <input
+                      type="date"
+                      value="2025-11-26"
+                      readOnly
+                      className="w-full border rounded-lg px-3 py-2 text-sm bg-gray-50 cursor-not-allowed"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Fixed for prototype</p>
+                  </div>
+
                   {/* Time of Change */}
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Time of Change</label>
